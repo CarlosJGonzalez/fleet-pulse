@@ -13,12 +13,25 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        mono: ['"IBM Plex Mono"', '"JetBrains Mono"', "ui-monospace", "monospace"],
+        display: ['"JetBrains Mono"', "ui-monospace", "monospace"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        surface: "hsl(var(--surface))",
+        "surface-2": "hsl(var(--surface-2))",
+        amber: { DEFAULT: "hsl(var(--accent-amber))" },
+        magenta: { DEFAULT: "hsl(var(--accent-magenta))" },
+        signal: {
+          green: "hsl(var(--accent-green))",
+          red: "hsl(var(--accent-red))",
+          amber: "hsl(var(--accent-amber))",
+        },
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
