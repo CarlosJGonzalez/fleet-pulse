@@ -65,7 +65,7 @@ const Index = () => {
   const sim = simRef.current;
   const trucks: TruckState[] = sim ? Array.from(sim.trucks.values()) : [];
   const selected = sim?.trucks.get(selectedId);
-  const pdfHref = "/Fleet_GPS_API_Design_Brief_v2.pdf";
+  const pdfHref = `${import.meta.env.BASE_URL}Fleet_GPS_API_Design_Brief_v2.pdf`;
 
   const project = useMemo(() => {
     const w = mapSize.w, h = mapSize.h;
