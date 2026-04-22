@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FleetSimulator, type TruckState, type TruckTick, type SimMetrics, BBOX } from "@/lib/simulator";
+import { DesignBriefPanel } from "@/components/fleet/DesignBriefPanel";
+import { Button } from "@/components/ui/button";
 
 const PIPELINE = ["INGEST", "KAFKA", "FLINK", "REDIS", "WS"] as const;
 
@@ -17,6 +19,7 @@ function ageStr(ts: number) {
 const Index = () => {
   const simRef = useRef<FleetSimulator | null>(null);
   const [, force] = useState(0);
+  const [viewMode, setViewMode] = useState<"dashboard" | "brief">("dashboard");
   const [metrics, setMetrics] = useState<SimMetrics>({
     pps: 0, avgLatencyMs: 0, kafkaLag: 0, online: 0, total: 0, failed: false, paused: false,
   });
@@ -62,6 +65,7 @@ const Index = () => {
   const sim = simRef.current;
   const trucks: TruckState[] = sim ? Array.from(sim.trucks.values()) : [];
   const selected = sim?.trucks.get(selectedId);
+  const pdfHref = "/Fleet_GPS_API_Design_Brief_v2.pdf";
 
   const project = useMemo(() => {
     const w = mapSize.w, h = mapSize.h;
@@ -110,11 +114,36 @@ const Index = () => {
               WS {metrics.failed ? "DEGRADED" : metrics.paused ? "PAUSED" : "OK"}
             </span>
           </div>
+          <div className="ml-2 flex items-center gap-2 border-l border-border pl-4">
+            <Button
+              variant={viewMode === "dashboard" ? "default" : "outline"}
+              size="sm"
+              className="font-mono-display h-8 tracking-widest"
+              onClick={() => setViewMode("dashboard")}
+            >
+              DASHBOARD
+            </Button>
+            <Button
+              variant={viewMode === "brief" ? "default" : "outline"}
+              size="sm"
+              className="font-mono-display h-8 tracking-widest"
+              onClick={() => setViewMode("brief")}
+            >
+              DESIGN BRIEF
+            </Button>
+            <Button asChild variant="outline" size="sm" className="font-mono-display h-8 tracking-widest">
+              <a href={pdfHref} download>
+                DOWNLOAD PDF
+              </a>
+            </Button>
+          </div>
         </div>
       </header>
 
       {/* CONTROL STRIP */}
       <div className="flex items-center gap-4 border-b border-border bg-background/80 px-4 py-1.5 text-[10px]">
+        {viewMode === "dashboard" ? (
+          <>
         <label className="flex items-center gap-2">
           <span className="text-muted-foreground tracking-widest">TICK RATE</span>
           <input
@@ -149,9 +178,22 @@ const Index = () => {
         <div className="ml-auto text-muted-foreground">
           [click any truck to focus telemetry]
         </div>
+          </>
+        ) : (
+          <>
+            <div className="font-mono-display tracking-widest text-primary/90">BRIEF MODE · ENGINEER SUMMARY</div>
+            <div className="text-muted-foreground">
+              Covers API contract, ingestion path, storage tiers, scaling strategy, and streaming vs batch decisions.
+            </div>
+            <div className="ml-auto text-muted-foreground">[aligned to current simulated pipeline]</div>
+          </>
+        )}
       </div>
 
       {/* MAIN GRID */}
+      {viewMode === "brief" ? (
+        <DesignBriefPanel pdfHref={pdfHref} />
+      ) : (
       <main className="flex flex-1 min-h-0">
         {/* LEFT — ROSTER */}
         <aside className="w-[280px] border-r border-border bg-surface/40 flex flex-col">
@@ -406,6 +448,7 @@ const Index = () => {
           </div>
         </aside>
       </main>
+      )}
     </div>
   );
 };
